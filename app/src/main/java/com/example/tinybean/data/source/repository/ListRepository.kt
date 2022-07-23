@@ -1,8 +1,8 @@
 package com.example.tinybean.data.source.repository
 
 import com.example.tinybean.data.Result
-import com.example.tinybean.data.model.dto.Image
+import com.example.tinybean.data.model.dto.Images
 
 interface ListRepository {
-    suspend fun fetchLists(): Result<List<Image>?>
+    suspend fun fetchLists(): Result<Images?>
 }

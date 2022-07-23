@@ -9,7 +9,7 @@
         android:id="@+id/iv_single"
         android:layout_width="match_parent"
         android:layout_height="7dp"
-        android:contentDescription="Single column image"
+        android:contentDescription="@string/single_column_image"
         app:layout_constraintBaseline_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

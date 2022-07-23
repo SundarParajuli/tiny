@@ -2,45 +2,60 @@ package com.example.tinybean.ui.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.denzcoskun.imageslider.constants.ActionTypes
+import com.denzcoskun.imageslider.constants.ScaleTypes
+import com.denzcoskun.imageslider.interfaces.TouchListener
+import com.denzcoskun.imageslider.models.SlideModel
 import com.example.tinybean.data.model.dto.ContentDto
-import com.example.tinybean.databinding.ItemDoubleColImageBinding
-import com.example.tinybean.databinding.ItemFourColImageBinding
-import com.example.tinybean.databinding.ItemSingleColImageBinding
-import com.example.tinybean.databinding.ItemSingleColImageSeparatorBinding
-import com.example.tinybean.ui.main.ContentAdapter.viewType
+import com.example.tinybean.databinding.ItemCarouselViewBinding
+import com.example.tinybean.databinding.ItemColImageBinding
+import com.example.tinybean.databinding.ItemSliderBinding
+import org.imaginativeworld.whynotimagecarousel.model.CarouselItem
 
-class ContentAdapter : ListAdapter<ContentDto, RecyclerView.ViewHolder>(DiffCallback()) {
-    private lateinit var itemSingleColImageBinding: ItemSingleColImageBinding
-    private lateinit var itemSingleColImageSeparatorBinding: ItemSingleColImageSeparatorBinding
-    private lateinit var itemDoubleColImageBinding: ItemDoubleColImageBinding
-    private lateinit var itemFourColImageBinding: ItemFourColImageBinding
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):RecyclerView.ViewHolder {
-        return when (viewType) {
-            ContentAdapter.viewType.IMAGE_SINGLE_COL -> {
-                itemSingleColImageBinding = ItemSingleColImageBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                SingleColumnImageViewHolder(itemSingleColImageBinding)
+class ContentAdapter(private val onClickListener: () -> Unit) :
+    ListAdapter<ContentDto, RecyclerView.ViewHolder>(DiffCallback()) {
+    private lateinit var itemColImageBinding: ItemColImageBinding
+    private lateinit var itemSliderBinding: ItemSliderBinding
+    private lateinit var itemCarouselViewBinding: ItemCarouselViewBinding
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        when (viewType) {
+            ViewType.IMAGE_TYPE -> {
+                itemColImageBinding =
+                    ItemColImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return ImageViewHolder(itemColImageBinding)
             }
-            ContentAdapter.viewType.IMAGE_DOUBLE_COL -> {
-                itemDoubleColImageBinding = ItemDoubleColImageBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                DoubleColumnImageViewHolder(itemDoubleColImageBinding)
+            ViewType.SLIDER_TYPE -> {
+                itemSliderBinding =
+                    ItemSliderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return SliderViewHolder(itemSliderBinding)
             }
-            ContentAdapter.viewType.IMAGE_TRIPPLE_COL -> {
-                itemDoubleColImageBinding = ItemDoubleColImageBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                DoubleColumnImageViewHolder(itemDoubleColImageBinding)
-            }
-            ContentAdapter.viewType.IMAGE_FOUR_COL -> {
-                itemFourColImageBinding = ItemFourColImageBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                FourColumnImageViewHolder(itemFourColImageBinding)
+            ViewType.CAROUSEL_TYPE -> {
+                itemCarouselViewBinding =
+                    ItemCarouselViewBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                return CarouseViewHolder(itemCarouselViewBinding)
             }
             else -> {
-                itemSingleColImageBinding = ItemSingleColImageBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                SingleColumnImageViewHolder(itemSingleColImageBinding)
+                itemCarouselViewBinding =
+                    ItemCarouselViewBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                return CarouseViewHolder(itemCarouselViewBinding)
+
             }
         }
+
     }
 
     fun updateList(list: List<ContentDto>) = submitList(list)
@@ -49,53 +64,73 @@ class ContentAdapter : ListAdapter<ContentDto, RecyclerView.ViewHolder>(DiffCall
         val contentDto = getItem(position)
         return when (contentDto.type) {
             "image" -> {
-                return when (contentDto.cols) {
-                    1 -> viewType.IMAGE_SINGLE_COL
-                    2 -> viewType.IMAGE_DOUBLE_COL
-                    3 -> viewType.IMAGE_TRIPPLE_COL
-                    4 -> viewType.IMAGE_FOUR_COL
-                    else -> {
-                        viewType.IMAGE_SINGLE_COL
-                    }
-                }
+                ViewType.IMAGE_TYPE
             }
             "carousel" -> {
-                super.getItemViewType(position)
+                ViewType.CAROUSEL_TYPE
             }
             "slider" -> {
-                super.getItemViewType(position)
+                ViewType.SLIDER_TYPE
             }
             else -> {
-                super.getItemViewType(position)
+                ViewType.IMAGE_TYPE
             }
         }
     }
 
-    inner class SingleColumnImageViewHolder(private val binding: ItemSingleColImageBinding) :
+    inner class CarouseViewHolder(private val binding: ItemCarouselViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(contentDto: ContentDto) {
+            val list = contentDto.images.map { CarouselItem(it.url, contentDto.title) }
+            binding.carousel.setData(list)
+            binding.root.setOnClickListener {
+                onClickListener.invoke()
+            }
+        }
+    }
+
+    inner class SliderViewHolder(private val binding: ItemSliderBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(contentDto: ContentDto) {
+            val imageList =
+                contentDto.images.map { SlideModel(it.url, scaleType = ScaleTypes.FIT) }
+            binding.imageSlider.setImageList(imageList)
+
+            binding.imageSlider.setTouchListener(object : TouchListener {
+                override fun onTouched(touched: ActionTypes) {
+                    when (touched) {
+                        ActionTypes.DOWN, ActionTypes.MOVE -> {
+                            binding.imageSlider.stopSliding()
+                        }
+                        ActionTypes.UP -> {
+                            binding.imageSlider.startSliding()
+
+                        }
+                    }
+                }
+
+            })
 
         }
     }
 
-    inner class DoubleColumnImageViewHolder(private val binding: ItemDoubleColImageBinding) :
+    inner class ImageViewHolder(private val binding: ItemColImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(contentDto: ContentDto) {
-
-        }
-    }
-
-    inner class TrippleColumnImageViewHolder(private val binding: ItemSingleColImageBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(contentDto: ContentDto) {
-
-        }
-    }
-
-    inner class FourColumnImageViewHolder(private val binding: ItemFourColImageBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(contentDto: ContentDto) {
-
+            binding.imageContainer.removeAllViews()
+            contentDto.images.forEach {
+                val image = ImageView(binding.root.context)
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                params.weight = 1f
+                image.layoutParams = params
+                Glide.with(binding.root).load(it.url)
+                    .into(image)
+                binding.imageContainer.addView(image)
+            }
         }
     }
 
@@ -107,17 +142,27 @@ class ContentAdapter : ListAdapter<ContentDto, RecyclerView.ViewHolder>(DiffCall
             oldItem == newItem
     }
 
-    object viewType {
-        const val IMAGE_SINGLE_COL = 1
-        const val IMAGE_SINGLE_COL_SEPARATOR = 2
-        const val IMAGE_DOUBLE_COL = 3
-        const val IMAGE_TRIPPLE_COL = 3
-        const val IMAGE_FOUR_COL = 4
+    object ViewType {
+        const val IMAGE_TYPE = 1
+        const val SLIDER_TYPE = 2
+        const val CAROUSEL_TYPE = 3
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val contentDto = getItem(position)
+        holder.itemView.setOnClickListener {
+            onClickListener.invoke()
+        }
         when (holder) {
-
+            is ImageViewHolder -> {
+                holder.bind(contentDto)
+            }
+            is SliderViewHolder -> {
+                holder.bind(contentDto)
+            }
+            is CarouseViewHolder -> {
+                holder.bind(contentDto)
+            }
         }
     }
 }

@@ -4,12 +4,20 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/activity_main.xml" value="0.35052083333333334" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/fragment_detail.xml" value="0.33" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/fragment_main.xml" value="0.11322463768115942" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_carousel_view.xml" value="0.21240942028985507" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_col_image.xml" value="0.296195652173913" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_double_col_image.xml" value="0.17046605876393112" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_four_col_image.xml" value="0.17046605876393112" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_list_image.xml" value="0.25" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_main.xml" value="0.17046605876393112" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_single_col_image.xml" value="0.17046605876393112" />
         <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_single_col_image_separator.xml" value="0.17046605876393112" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/layout/item_slider.xml" value="0.21240942028985507" />
+        <entry key="..\:/Users/pataj/AndroidStudioProjects/TinyBean/app/src/main/res/menu/example_menu.xml" value="0.129296875" />
+        <entry key="..\:/Users/pataj/AppData/Local/Android/Sdk/platforms/android-32/data/res/drawable/btn_dialog.xml" value="0.1" />
+        <entry key="..\:/Users/pataj/AppData/Local/Android/Sdk/platforms/android-32/data/res/drawable/progress_horizontal.xml" value="0.1" />
       </map>
     </option>
   </component>

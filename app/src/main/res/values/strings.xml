@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TinyBean</string>
+    <string name="single_column_image">Single column image</string>
 </resources>

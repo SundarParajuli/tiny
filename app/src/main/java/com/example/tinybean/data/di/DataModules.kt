@@ -22,13 +22,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
-import okhttp3.OkHttpClient
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Qualifier
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-
 
 
 @Module
@@ -44,12 +43,14 @@ object AppModule {
 object NetworkModule {
     @Provides
     @Singleton
-    fun providesOkHttpClient(): OkHttpClient {
+    fun providesOkHttpClient(cache: Cache): OkHttpClient {
         if (BuildConfig.DEBUG) {
             val logger = HttpLoggingInterceptor()
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
             return OkHttpClient.Builder()
                 .addInterceptor(logger)
+                .addNetworkInterceptor(CacheInterceptor())
+                .cache(cache)
                 .build()
         }
 
@@ -71,6 +72,14 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+
+    private const val CACHE_SIZE = 5 * 1024 * 1024L // 5 MB
+
+    @Singleton
+    @Provides
+    fun httpCache(application: Application): Cache {
+        return Cache(application.applicationContext.cacheDir, CACHE_SIZE)
+    }
 }
 
 @Module
@@ -134,6 +143,28 @@ object RepositoryModule {
         @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): WeddingRepository {
         return WeddingRepositoryImpl(weddingDataSource, ioDispatcher)
+    }
+
+
+
+}
+
+
+class CacheInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        val originalResponse = chain.proceed(request)
+
+        val shouldUseCache = request.header(CACHE_CONTROL_HEADER) != CACHE_CONTROL_NO_CACHE
+        if (!shouldUseCache) return originalResponse
+
+        val cacheControl = CacheControl.Builder()
+            .maxAge(10, TimeUnit.MINUTES)
+            .build()
+
+        return originalResponse.newBuilder()
+            .header(CACHE_CONTROL_HEADER, cacheControl.toString())
+            .build()
     }
 }
 

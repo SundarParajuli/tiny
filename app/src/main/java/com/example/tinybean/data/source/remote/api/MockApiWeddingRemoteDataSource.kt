@@ -13,7 +13,5 @@ class MockApiWeddingRemoteDataSource @Inject constructor(private val apiService:
         val response = apiService.fetchWeddings()
         return@safeApiCall response.body()
     }
-
-
 }
 
